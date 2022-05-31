@@ -4,7 +4,8 @@ var answerButtonElement = document.getElementById("answer-buttons");
 var controlsElement = document.getElementById("controls");
 var timerElement = document.getElementById("quiz-time-left");
 
-var shuffledQuestions, currentQuestionIndex;
+var shuffledQuestions;
+var currentQuestionIndex = 0;
 var startHeading = document.createElement("h2");
 var startText = document.createElement("div");
 var startButton = document.createElement("button");
@@ -27,7 +28,6 @@ function startGame() {
    startButton.classList.add("hide");
    startText.classList.add("hide");
    shuffledQuestions = questionArray.sort(() => Math.random() - 0.5);
-   currentQuestionIndex = 0;
    questionContainerElement.classList.remove("hide");
    setNextQuestion();
    countdownTimer();
@@ -50,15 +50,19 @@ function countdownTimer() {
    }, 1000);
 };
 
-function setNextQuestion() {
-   resetQuestion();
-   showQuestion(shuffledQuestions[currentQuestionIndex]);
+function setNextQuestion(event) {
+   resetAnswers();
+   showQuestion(shuffledQuestions[currentQuestionIndex]); 
 };
 
-function resetQuestion () {
+function resetAnswers () {
    while (answerButtonElement.firstChild) {
       answerButtonElement.removeChild(answerButtonElement.firstChild)
    };
+};
+
+function resetQuestion () {
+   questionContainerElement.classList.add("hide");
 };
 
 function showQuestion(question) {
@@ -67,8 +71,8 @@ function showQuestion(question) {
       var button = document.createElement("button");
       button.innerText = answer.text;
       button.classList.add("btn");
-      if (answer.correct) {
-         button.dataset.correct = answer.correct;
+      if (answer.choice) {
+         button.dataset.choice = answer.choice;
       }
       button.addEventListener('click', selectAnswer)
       answerButtonElement.appendChild(button)});
@@ -81,50 +85,64 @@ function selectAnswer(event) {
       color: "gray",
       fontSize: "50px"
    };
-   currentQuestionIndex++;
-   if (selectedButton.dataset.correct) {
-      var statusDisplay = document.createElement("div");
-      statusDisplay.innerText = "Correct!";
-      Object.assign(statusDisplay.style, statusStyle);
-      answerButtonElement.appendChild(statusDisplay);
+   if (shuffledQuestions.length > currentQuestionIndex + 1) {
+      if (selectedButton.dataset.choice) {
+         var statusDisplay = document.createElement("div");
+         answerButtonElement.appendChild(statusDisplay);
+         Object.assign(statusDisplay.style, statusStyle);
+         statusDisplay.innerText = "Correct!";
+         setTimeout(function(){
+            setNextQuestion();
+         }, 1000);
+      } else {
+         var statusDisplay = document.createElement("div");
+         statusDisplay.innerText = "Wrong!";
+         Object.assign(statusDisplay.style, statusStyle);
+         answerButtonElement.appendChild(statusDisplay);
+         setTimeout(function(){
+            setNextQuestion();
+         }, 1000);
+      };
    } else {
-      var statusDisplay = document.createElement("div");
-      statusDisplay.innerText = "Wrong!";
-      Object.assign(statusDisplay.style, statusStyle);
-      answerButtonElement.appendChild(statusDisplay);
+      setTimeout(function() {
+         endGame();
+      }, 1000);
    };
-   // if (shuffledQuestions.length > currentQuestionIndex + 1) {
-      
-   // };
+   currentQuestionIndex++;
+};
+
+function endGame() {
+   resetAnswers();
+   resetQuestion();
 };
 
 var questionArray = [
    {
       question: "What is the symbol when opening and closing a function?",
       answers: [
-         { text: "1. Curly brackets", correct: false },
-         { text: "2. Square brackets", correct: false },
-         { text: "3. Parentheses", correct: true },
-         { text: "4. Single quotes", correct: false },
+         { text: "1. Curly brackets", choice: false },
+         { text: "2. Square brackets", choice: false },
+         { text: "3. Parentheses", choice: true },
+         { text: "4. Single quotes", choice: false },
       ]
    },
    {
       question: "What's an example of a tag in HTML?",
       answers: [
-         { text: "1. <p>", correct: true },
-         { text: "2. 'if'", correct: false },
-         { text: "3. var", correct: false },
-         { text: "4. .btn", correct: false },
+         { text: "1. <p>", choice: true },
+         { text: "2. 'if'", choice: false },
+         { text: "3. var", choice: false },
+         { text: "4. .btn", choice: false },
 
       ]
    },
    {
       question: "A _____ uses single or double quotation marks that identifies it as text.",
       answers: [
-         { text: "1. variable", correct: false },
-         { text: "2. string", correct: true },
-         { text: "3. boolean", correct: false },
-         { text: "4. constant", correct: false },
+         { text: "1. variable", choice: false },
+         { text: "2. string", choice: true },
+         { text: "3. boolean", choice: false },
+         { text: "4. constant", choice: false },
 
       ]
    }
