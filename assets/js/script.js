@@ -1,40 +1,131 @@
-var body = document.body;
-var containerEl = document.createElement("main");
-var h1El = document.createElement("h1");
-var questionContainer = document.createElement("div");
-var h2El = document.createElement("h2");
-var listEl = document.createElement("ol");
-var li1 = document.createElement("li")
-var li2 = document.createElement("li")
-var li3 = document.createElement("li")
-var li4 = document.createElement("li")
-var hsEl = document.createElement("header");
+var questionContainerElement = document.getElementById("question-container");
+var questionElement = document.getElementById("question");
+var answerButtonElement = document.getElementById("answer-buttons");
+var controlsElement = document.getElementById("controls");
+var timerElement = document.getElementById("quiz-time-left");
 
+var shuffledQuestions, currentQuestionIndex;
+var startHeading = document.createElement("h2");
+var startText = document.createElement("div");
+var startButton = document.createElement("button");
 
-h1El.textContent = "Welcome to Code Quiz Challenge!";
-hsEl.textContent = "View High Scores";
-h2El.textContent = "Please answer this question";
-li1.textContent = "Answer 1";
-li2.textContent = "Answer 2";
-li3.textContent = "Answer 3";
-li4.textContent = "Answer 4";
+startHeading.innerText = "Coding Quiz Challenge";
+startHeading.style.color = "red"; 
+controlsElement.appendChild(startHeading);
+startText.innerText = "This quiz is designed to test your knowledge about coding elements related to HTML, CSS, and JS. Try to answer the questions within the time limit.";
+startText.style.padding = "0 0 25px 25px";
+controlsElement.appendChild(startText);
+startButton.innerText = "Start";
+startButton.classList.add("start-btn");
+startButton.classList.add("btn");
+controlsElement.appendChild(startButton);
 
-body.appendChild(hsEl);
-body.appendChild(containerEl);
-containerEl.appendChild(h1El);
-containerEl.appendChild(questionContainer);
-questionContainer.appendChild(h2El);
-questionContainer.appendChild(listEl);
-listEl.appendChild(li1);
-listEl.appendChild(li2);
-listEl.appendChild(li3);
-listEl.appendChild(li4);
+startButton.addEventListener("click", startGame);
 
-h1El.setAttribute("style", "margin:auto, width: 50%; text-align:center;");
-questionContainer.setAttribute("style", "margin:auto, width: 50%; text-align:center;");
-listEl.setAttribute("style", "text-align: left; padding: 20px;");
+function startGame() {
+   startHeading.classList.add("hide");
+   startButton.classList.add("hide");
+   startText.classList.add("hide");
+   shuffledQuestions = questionArray.sort(() => Math.random() - 0.5);
+   currentQuestionIndex = 0;
+   questionContainerElement.classList.remove("hide");
+   setNextQuestion();
+   countdownTimer();
+};
 
-li1.setAttribute("style", " color:white; background: #666666; padding: 5px;");
-li2.setAttribute("style", " color:white; background: #777777; padding: 5px;");
-li3.setAttribute("style", " color:white; background: #888888; padding: 5px;");
-li4.setAttribute("style", " color:white; background: #999999; padding: 5px;");
+function countdownTimer() {
+   var timeLeft = 75;
+
+   var timeInterval = setInterval(function () {
+      if (timeLeft > 1) {
+         timerElement.innerHTML = "Time: " + timeLeft;
+         timeLeft--;
+      } else if (timeLeft === 1) {
+         timerElement.innerHTML = "Time: " + timeLeft;
+         timeLeft--;
+      } else {
+         timerElement.textContent = " ";
+         clearInterval(timeInterval);
+      }
+   }, 1000);
+};
+
+function setNextQuestion() {
+   resetQuestion();
+   showQuestion(shuffledQuestions[currentQuestionIndex]);
+};
+
+function resetQuestion () {
+   while (answerButtonElement.firstChild) {
+      answerButtonElement.removeChild(answerButtonElement.firstChild)
+   };
+};
+
+function showQuestion(question) {
+   questionElement.innerText = question.question;
+   question.answers.forEach(answer => {
+      var button = document.createElement("button");
+      button.innerText = answer.text;
+      button.classList.add("btn");
+      if (answer.correct) {
+         button.dataset.correct = answer.correct;
+      }
+      button.addEventListener('click', selectAnswer)
+      answerButtonElement.appendChild(button)});
+};
+
+function selectAnswer(event) {
+   var selectedButton = event.target;
+   var statusStyle = {
+      fontStyle: "italic",
+      color: "gray",
+      fontSize: "50px"
+   };
+   currentQuestionIndex++;
+   if (selectedButton.dataset.correct) {
+      var statusDisplay = document.createElement("div");
+      statusDisplay.innerText = "Correct!";
+      Object.assign(statusDisplay.style, statusStyle);
+      answerButtonElement.appendChild(statusDisplay);
+   } else {
+      var statusDisplay = document.createElement("div");
+      statusDisplay.innerText = "Wrong!";
+      Object.assign(statusDisplay.style, statusStyle);
+      answerButtonElement.appendChild(statusDisplay);
+   };
+   // if (shuffledQuestions.length > currentQuestionIndex + 1) {
+      
+   // };
+};
+
+var questionArray = [
+   {
+      question: "What is the symbol when opening and closing a function?",
+      answers: [
+         { text: "1. Curly brackets", correct: false },
+         { text: "2. Square brackets", correct: false },
+         { text: "3. Parentheses", correct: true },
+         { text: "4. Single quotes", correct: false },
+      ]
+   },
+   {
+      question: "What's an example of a tag in HTML?",
+      answers: [
+         { text: "1. <p>", correct: true },
+         { text: "2. 'if'", correct: false },
+         { text: "3. var", correct: false },
+         { text: "4. .btn", correct: false },
+
+      ]
+   },
+   {
+      question: "A _____ uses single or double quotation marks that identifies it as text.",
+      answers: [
+         { text: "1. variable", correct: false },
+         { text: "2. string", correct: true },
+         { text: "3. boolean", correct: false },
+         { text: "4. constant", correct: false },
+
+      ]
+   }
+];
